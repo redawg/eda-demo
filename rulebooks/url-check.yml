@@ -1,25 +1,39 @@
 ---
-- name: Listen for events on a webhook
-  hosts: web
-  ## Define our source for events
+- name: Web Site Checks Rulebook
+  hosts: all
+  
   sources:
-     - ansible.eda.url_check:
+    - name: Are my web sites operational
+      ansible.eda.url_check:
+        verify_ssl: false
+        delay: 10 # seconds
         urls:
-          - http://test1.thatcigardude.com/
-        delay: 10
-
+          #- https://status.redhat.com
+          - http://test1.thatcigardude.com
+          #- http://loadofrubbishurl.com
+#
+# How to easily debug output (to get event metadata for instance)
+#
   rules:
-    ## Define the conditions we are looking for 
-    - name: Web site is up
-      condition: event.url_check.status == "up"
-    ## Define the action we should take should the condition be met  
-      action:
-        run_playbook:
-          name: wowza.yml
-
-    - name: Web site is down
+    - name: Debug output
       condition: event.url_check.status == "down"
-    ## Define the action we should take should the condition be met  
       action:
-        run_playbook:
-          name: fix_web.yml
+        debug:
+
+#  rules:
+#    - name: "Alert if URL is down (call AAP controller)"
+#      condition:
+#        any:
+#          - event.url_check.status == "down"
+#      throttle:
+#        once_within: 5 minutes
+#        group_by_attributes:
+#          - event.url_check.url
+#      action:
+#        run_job_template:
+#          name: "Demo Job Template"
+#          organization: "Default"
+#          # Need JT prompt-on-launch for the below to work!
+#          job_args:
+#            extra_vars:
+#              website: '{{ event.url_check.url }}'
