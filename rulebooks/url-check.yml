@@ -24,7 +24,7 @@
         any:
           - event.url_check.status == "down"
       throttle:
-        once_within: 5 minutes
+        once_within: 2 minutes
         group_by_attributes:
           - event.url_check.url
       action:
