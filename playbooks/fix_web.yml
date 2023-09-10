@@ -12,7 +12,7 @@
       copy:
        remote_src: yes
        src: /tmp/index.html
-       dest: /var/www/html/
-       owner: apache
-       group: apache
-       mode: '0644'
+       dest: /usr/share/nginx/html/
+       owner: root
+       group: root
+       mode: '0777'

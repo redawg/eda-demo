@@ -8,31 +8,29 @@
         verify_ssl: false
         delay: 10 # seconds
         urls:
-          #- https://status.redhat.com
           - http://test1.thatcigardude.com
-          #- http://loadofrubbishurl.com
 #
 # How to easily debug output (to get event metadata for instance)
 #
-  rules:
-    - name: Debug output
-      condition: event.url_check.status == "down"
-      action:
-        debug:
-
 #  rules:
-#    - name: "Alert if URL is down (call AAP controller)"
-#      condition:
-#        any:
-#          - event.url_check.status == "down"
-#      throttle:
-#        once_within: 5 minutes
-#        group_by_attributes:
-#          - event.url_check.url
+#    - name: Debug output
+#      condition: event.url_check.status == "down"
 #      action:
-#        run_job_template:
-#          name: "Demo Job Template"
-#          organization: "Default"
+#        debug:
+
+  rules:
+    - name: "Alert if URL is down (call AAP controller)"
+      condition:
+        any:
+          - event.url_check.status == "down"
+      throttle:
+        once_within: 5 minutes
+        group_by_attributes:
+          - event.url_check.url
+      action:
+        run_job_template:
+          name: "web_fix"
+          organization: "Default"
 #          # Need JT prompt-on-launch for the below to work!
 #          job_args:
 #            extra_vars:
