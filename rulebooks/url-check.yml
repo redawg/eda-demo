@@ -19,6 +19,19 @@
 #        debug:
 
   rules:
+    - name: "Web sit is up Alert (call AAP controller)"
+      condition:
+        any:
+          - event.url_check.status == "up"
+      throttle:
+        once_within: 2 minutes
+        group_by_attributes:
+          - event.url_check.url
+      action:
+        run_job_template:
+          name: "web_up"
+          organization: "Default"
+
     - name: "Alert if URL is down (call AAP controller)"
       condition:
         any:
