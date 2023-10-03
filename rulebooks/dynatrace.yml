@@ -11,9 +11,9 @@
     - name: Look for open Synthetic monitor problem
       condition: event.title contains "Multiple synthetic problems"
       action:
-      run_job_template:
-        name: "Restart Nginx"
-        organization: "Default"
+        run_job_template:
+          name: "Restart Nginx"
+          organization: "Default"
       #condition:
       #  all:
       #    - event.status == "OPEN"
