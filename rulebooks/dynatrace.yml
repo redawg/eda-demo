@@ -8,10 +8,12 @@
         delay: "{{ dynatrace_delay }}"
 
   rules:
-    - name: Grab all problems for now
-      #condition: event.problemTitle contains "Availability"
-      condition:
-        all:
-          - event.status == "OPEN"
+    - name: Look for open Synthetic monitor problem
+      condition: event.title contains "Multiple synthetic problems"
       action:
-        debug:
+      run_job_template:
+        name: "Restart Nginx"
+        organization: "Default"
+      #condition:
+      #  all:
+      #    - event.status == "OPEN"
