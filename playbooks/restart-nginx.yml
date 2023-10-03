@@ -3,12 +3,12 @@
   hosts: all
   gather_facts: false
   become: true
-  
   tasks:
-    - debug:
+    - name: Restart Nginx
+      ansible.builtin.debug:
         msg: "Restarting Nginx Webserver!"
 
-    - name: Restart Web Server 
+    - name: Restart Web Server
       ansible.builtin.service:
         name: nginx
         state: restarted
