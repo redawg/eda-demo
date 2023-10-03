@@ -12,7 +12,7 @@
       condition: event.title contains "Multiple synthetic problems"
       action:
         run_job_template:
-          name: "Restart Nginx"
+          name: Restart Nginx
           organization: "Default"
       #condition:
       #  all:
