@@ -1,0 +1,14 @@
+---
+- name: Restore Service
+  hosts: all
+  gather_facts: false
+  become: true
+  
+  tasks:
+    - debug:
+        msg: "Restarting Nginx Webserver!"
+
+    - name: Restart Web Server 
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
