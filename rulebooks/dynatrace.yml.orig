@@ -1,0 +1,31 @@
+---
+- name: Watching for Problems on Dynatrace
+  hosts: all
+  sources:
+    - dynatrace.event_driven_ansible.dt_esa_api:
+        dt_api_host: "{{ dynatrace_host }}"
+        dt_api_token: "{{ dynatrace_token }}"
+        delay: "{{ dynatrace_delay }}"
+
+  rules:
+    - name: Problem payload Dynatrace for CPU saturation issue
+      condition: event.title contains "CPU saturation"
+      action:
+        run_job_template:
+          name: EDADemo-action-dynatrace-resolve-and-report-saturation-issue
+          organization: "{{ job_templates_org_name | default('Foxhound') }}"
+          job_args:
+            extra_vars:
+              reported_saturation_problem_type: CPU
+              reporting_host: "{{event.impactedEntities[0].name }}"
+
+    - name: Problem payload Dynatrace for Memory saturation issue
+      condition: event.title contains "Memory saturation"
+      action:
+        run_job_template:
+          name: EDADemo-action-dynatrace-resolve-and-report-saturation-issue
+          organization: "{{ job_templates_org_name | default('Foxhound') }}"
+          job_args:
+            extra_vars:
+              reported_saturation_problem_type: Memory
+              reporting_host: "{{event.impactedEntities[0].name }}"
