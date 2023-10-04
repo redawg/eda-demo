@@ -18,4 +18,4 @@
       block:
         - name: Print chksrvc
           ansible.builtin.debug:
-            var: chksrvc
+            var: chksrvc.state
