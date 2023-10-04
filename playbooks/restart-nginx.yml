@@ -16,7 +16,13 @@
 
     - name: Validate, update ITSM and close Dyantrace problem ticke if serice is restored
       block:
+        - name: Print the Dynatrace Problem ID
+          ansible.builtin.debug:
+            var: problemID
+
         - name: Print chksrvc
           ansible.builtin.debug:
             msg: "Hey your nginix web server is back up. Good for you"
       when: chksrvc.state == "started"
+
+
