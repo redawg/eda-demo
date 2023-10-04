@@ -9,13 +9,14 @@
 
   rules:
     - name: Look for open Synthetic monitor problem
+      condition: event.title == "Process unavailable"
       #condition: event.title == "Multiple synthetic problems"
-      #action:
-      #  run_job_template:
-      #    name: Restart Nginx
-      #    organization: "Default"
-      condition:
-        all:
-          - event.status == "OPEN"
       action:
-        debug:
+        run_job_template:
+          name: Restart Nginx
+          organization: "Default"
+      #condition:
+      #  all:
+      #    - event.status == "OPEN"
+      #action:
+      #  debug:
