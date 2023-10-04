@@ -1,5 +1,5 @@
 ---
-- name: Restore Service
+- name: Restore nginx service and update ServiceNow ticket and Dynatrace Problem
   hosts: all
   gather_facts: false
   become: true
@@ -12,3 +12,10 @@
       ansible.builtin.service:
         name: nginx
         state: restarted
+      register: chksrvc
+
+    - name: Validate, update ITSM and clost Dyantrace problem ticke if serice is restored
+      block:
+        - name: Print chksrvc
+          ansible.builtin.debug:
+            var: chksrvc
