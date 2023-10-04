@@ -14,7 +14,7 @@
         state: restarted
       register: chksrvc
 
-    - name: Validate, update ITSM and clost Dyantrace problem ticke if serice is restored
+    - name: Validate, update ITSM and close Dyantrace problem ticke if serice is restored
       block:
         - name: Print chksrvc
           ansible.builtin.debug:
