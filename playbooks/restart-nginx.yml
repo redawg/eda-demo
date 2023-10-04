@@ -1,28 +1,62 @@
 ---
-- name: Restore nginx service and update ServiceNow ticket and Dynatrace Problem
+- name: Restore nginx service create, update and close ServiceNow ticket after Ansible restores services
   hosts: all
   gather_facts: false
   become: true
+  vars:
+    incident_description: Nginx Web Server is down
+    sn_impact: medium
+    sn_urgency: medium
   tasks:
-    - name: Restart Nginx
-      ansible.builtin.debug:
-        msg: "Restarting Nginx Webserver!"
+    - name: Create an incident in ServiceNow
+      servicenow.itsm.incident:
+        state: new
+        description: " Dynatrace reported {{ problemID }}"
+        short_description: "Nginx is down per {{ problemID }}"
+        caller: admin
+        urgency: "{{ sn_urgency }}"
+        impact: "{{ sn_impact }}"
+      register: new_incident
+      delegate_to: localhost
 
-    - name: Restart Web Server
+    - name: Display incident number
+      ansible.builtin.debug:
+        var: new_incident.record.number
+
+    - name: Pass incident number
+      ansible.builtin.set_stats:
+        data:
+          ticket_number: "{{ new_incident.record.number }}"
+
+    - name: Try to restart nginx
       ansible.builtin.service:
         name: nginx
         state: restarted
       register: chksrvc
 
-    - name: Validate, update ITSM and close Dyantrace problem ticke if serice is restored
+    - name: Update incident in ServiceNow
+      servicenow.itsm.incident:
+        state: in_progress
+        number: "{{ ticket_number }}"
+        other:
+          comments: "Ansible automation is working on {{ problemID }}."
+      delegate_to: localhost
+
+    - name: Validate service is up and update/close SNOW ticket
       block:
-        - name: Print the Dynatrace Problem ID
-          ansible.builtin.debug:
-            var: problemID
+        - name: Close incident in ServiceNow
+          servicenow.itsm.incident:
+            state: closed
+            number: "{{ ticket_number }}"
+            close_code: "Solved (Permanently)"
+            close_notes: "Go back to bed. Ansible fixed problem {{ problemID }} reported by Dynatrace."
+          delegate_to: localhost
+
+        #- name: Print the Dynatrace Problem ID
+        #  ansible.builtin.debug:
+        #    var: problemID
 
         - name: Print chksrvc
           ansible.builtin.debug:
             msg: "Hey your nginix web server is back up. Good for you"
       when: chksrvc.state == "started"
-
-
