@@ -17,8 +17,3 @@
           job_args:
             extra_vars:
               problemID: "{{ event.displayId }}"
-      #condition:
-      #  all:
-      #    - event.status == "OPEN"
-      #action:
-      #  debug:
