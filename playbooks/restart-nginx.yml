@@ -51,10 +51,6 @@
             close_notes: "Go back to bed. Ansible fixed problem {{ problemID }} reported by Dynatrace."
           delegate_to: localhost
 
-        #- name: Print the Dynatrace Problem ID
-        #  ansible.builtin.debug:
-        #    var: problemID
-
         - name: Print chksrvc
           ansible.builtin.debug:
             msg: "Hey your nginix web server is back up. Good for you"
