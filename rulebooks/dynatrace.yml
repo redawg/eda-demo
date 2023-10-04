@@ -16,7 +16,7 @@
           organization: "Default"
           job_args:
             extra_vars:
-              problemID: "{{ event.problemId }}"
+              problemID: "{{ event.displayId }}"
       #condition:
       #  all:
       #    - event.status == "OPEN"
