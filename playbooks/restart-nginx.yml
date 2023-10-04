@@ -12,7 +12,7 @@
       servicenow.itsm.incident:
         state: new
         description: " Dynatrace reported {{ problemID }}"
-        short_description: "Nginx is down per {{ problemID }}"
+        short_description: "Nginx is down per {{ problemID }} from Dynatrace nginix monitor."
         caller: admin
         urgency: "{{ sn_urgency }}"
         impact: "{{ sn_impact }}"
