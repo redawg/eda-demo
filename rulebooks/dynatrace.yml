@@ -9,7 +9,9 @@
 
   rules:
     - name: Look for open Synthetic monitor problem
-      condition: event.title contains "Multiple synthetic problems"
+      condition: 
+        all:
+          - event.title contains "Multiple synthetic problems"
       action:
         run_job_template:
           name: Restart Nginx
