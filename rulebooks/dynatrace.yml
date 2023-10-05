@@ -15,7 +15,7 @@
           name: Fix Nginx and update all
           organization: "Default"
           job_args:
-            limit: "{{ event.impactedEntities.name }}"
+            #limit: "{{ event.impactedEntities[0].name }}"
             extra_vars:
               problemID: "{{ event.displayId }}"
-              #reporting_host: "{{ event.impactedEntities.name }}"
+              reporting_host: "{{ event.impactedEntities[0].name }}"
