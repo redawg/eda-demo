@@ -11,5 +11,6 @@
     - name: Grab event metadata to see what to key on for condition
       condition:
         all:
+          - event.status == "OPEN"
       action:
         debug:
