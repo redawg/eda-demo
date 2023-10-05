@@ -9,7 +9,8 @@
 
   rules:
     - name: Look for open Synthetic monitor problem
-      condition: event.title == "Process unavailable"
+      #condition: event.title == "Process unavailable"
+      condition: event.title == "No process found for rule Nginx Host monitor"
       action:
         run_job_template:
           name: Fix Nginx and update all
@@ -17,3 +18,4 @@
           job_args:
             extra_vars:
               problemID: "{{ event.displayId }}"
+              reporting_host: "{{ event.impactedEntities[0].name }}"
