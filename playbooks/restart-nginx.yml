@@ -1,6 +1,6 @@
 ---
 - name: Restore nginx service create, update and close ServiceNow ticket after Ansible restores services
-  hosts: {{ reporting_host: }}
+  hosts: {{ reporting_host }}
   gather_facts: false
   become: true
   vars:
