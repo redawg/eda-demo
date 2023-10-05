@@ -205,5 +205,12 @@ dynatrace_delay: 30
 > Click Create rulebook activation
 
 > At this point we are finished in EDA Controller.Let's pivot to AAP Controller.
-12. Log into your AAP Controller. We are going to create the following:
-> - 
+12. Log into your AAP Controller. You will need to have created the following resources:
+  > - Machine Credential to access your RHEL host running Nginx
+  > - Service Now Credential 
+  > - Project that has this repo in it
+  > - an Execution environment with the Service Collection in it.
+13. Create the Job Template See below:
+  > ![Alt text](<Screenshot from 2023-10-05 11-12-00.png>)
+  > Note, I am hardcoding the limit u
+  
