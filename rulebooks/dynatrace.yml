@@ -18,4 +18,4 @@
           job_args:
             extra_vars:
               problemID: "{{ event.displayId }}"
-              reporting_host: "{{ event.impactedEntities[0].name }}"
+              reporting_host: "{{ event.impactedEntities.name }}"
