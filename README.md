@@ -1,4 +1,4 @@
-# Steps for using the Dynatrace plugin with Event Driven Ansible
+# Steps for Demoing the Dynatrace plugin with Event Driven Ansible 
 
 ## This repo can be used to demo Event Driven Ansible with the Dynatrace plugin. This demo features:
 1. Event Driven Ansible Controller
@@ -18,7 +18,7 @@ d. Event Driven Ansible runs Job template that does the following:
 2. Attempts to restart nginx
 3. Marks Incident ticket in progress
 4. Closes ticket only if nginx is back up
-![Alt text](<Screenshot from 2023-10-04 16-42-26.png>)
+![Alt text](<Screenshot from 2023-10-05 20-20-29.png>)
 
 ---
 ### Prerequisites:
@@ -132,20 +132,25 @@ In the EDA Controller you can store the variable needed for the Dynatrace plugin
  Let's move onto the next step.  
 
  2. You've rebooted your target node. At this point the Nginx and OneAgent processes should be running. Great! Already the OneAgent is discovering what all is running on the host. Let's take advantage of that and setup a process monitor for Nginx. 
-> In the Dynatrace Console, go to Technologies and processes then select Nginx
-![Alt text](<Screenshot from 2023-10-04 22-41-30.png>)
+>>In this demonstration, we are setting up a Process availability monitoring rule. Instructions for how to do that can be  [found here](https://www.dynatrace.com/support/help/platform-modules/infrastructure-monitoring/hosts/monitoring/process-availability) 
+however, I will be providing the steps here for how I set it up to monitor Nginx.
+>> 1. Log into Dynatrace
+>> 2. Go to settings at the bottom left then Process availability.
+>> 3. Under Process availability click 'Add monitoring rule'
+>> 4. Give the monitor rule name a name (I put Nginx Host monitor)
+>> 5. Click Add detection rule
+>> 6. Keep 'Select process property' set to Executable
+>> 7. For Condition put $contains(nginx)
+>> 8. Save the the setting in the lower left
 
-> After you've selected Nginx see below what's next to click:
-![Alt text](<Screenshot from 2023-10-04 22-49-52.png>)
-Click settings
-![Alt text](<Screenshot from 2023-10-04 22-51-51.png>)
-Flip from 'Do not Monitor' to 'Monitor'
-![Alt text](<Screenshot from 2023-10-04 22-54-33.png>)
+![Alt text](<Screenshot from 2023-10-06 10-35-33.png>)
 
->Save your configuration.
-![Alt text](<Screenshot from 2023-10-04 22-57-15.png>)
 
 > Oh boy you're cooking now. Let's see if this thing works. Ready to kill something? :smirk:
+  
+> STOP :stop_sign: before we go.. it's important to pause and appreciate what you've done so far. You've setup a host-level monitor for nginx running on your target host for your demo. Why do you care? Well by using a host-level monitor you will have the impactedEntities key in the json payload set to the the hostname that will go to EDA to and dynamically run a Job in Controller only on the troubled node that created the problem alert in Dynatrace. See below a preview of what that payload will look like because you'll see in the playbook and rulebook that is used in this repo.
+![Alt text](<Screenshot from 2023-10-06 10-48-14.png>)
+
 3. Hop over to your RHEL managed host that's running Nginx. Let's get that nginx process so we know what we're killing! :sunglasses:
 ```
 $ systemctl status nginx
@@ -168,10 +173,10 @@ $ sudo kill -9 99286 <- such a brutal death
 
 5. Well at this point we have:
 > - installed the OneAgent
-> - Setup a process monitor in Dynatrace
+> - Setup a host level process monitor in Dynatrace
 > - Killed Nginx and demonstrated we get a problem alert in Dynatrace. 
-> - At this point let's pivot to what is in this repo. 
-> - First let's go into EDA Controller and set some things up so we can start reviving our little Nginx buddy. 
+> - Now let's pivot to what is in this repo. 
+> - Go ahead and restart nginx on your target node to let the problem alert clear in Dynatrace. We have some setup to do in AAP!
 
 6. Log into your EDA Controller. 
    > That Decision Environment you created earlier, well that needs to be pulled into EDA now.
@@ -182,7 +187,7 @@ $ sudo kill -9 99286 <- such a brutal death
 
    > You have a DE now. We're getting closer to saving this little feller. :ghost:
 
-7. Just like how AAP Controller has projects to pull in you playbooks, EDA has projects to pull in your rulebooks. So let's do that. 
+7. Just like how AAP Controller has projects to pull in your playbooks, EDA has projects to pull in your rulebooks. So let's do that. 
    > Go to projects and then create project
    ![Alt text](<Screenshot from 2023-10-04 23-56-51.png>)
 8. Fill in the information. 
@@ -210,7 +215,37 @@ dynatrace_delay: 30
   > - Service Now Credential 
   > - Project that has this repo in it
   > - an Execution environment with the Service Collection in it.
+  > - Inventory that can be set to the job template that includes the node that we plan to kill nginx on.
 13. Create the Job Template See below:
-  > ![Alt text](<Screenshot from 2023-10-05 11-12-00.png>)
-  > Note, I am hardcoding the limit u
   
+  ![Alt text](<Screenshot from 2023-10-06 10-59-04.png>)
+  
+>> As of this writing, the new [run_workflow_template is not GA in EDA... YET!](https://ansible.readthedocs.io/projects/rulebook/en/latest/actions.html#run-workflow-template)  
+>> For now, we are opening, updating, and closing tickets while we fix the problem all in 1 playbook. That will change soon so we can take advantage of workflows!
+
+So I think we have all the pieces together. At this point I would have 4 tabs up in my brower:  
+1. Tab for ServiceNow Incident screen
+2. Tab for Dynatrace so you can see the problem alert when you kill the nginx pid on the host
+3. Tab for AAP Controller (in the jobs screen)
+4. Tab for EDA Controller (in the Rule Audit screen to see the event fire )
+
+See below examples:
+Tab for Service Now:
+![Alt text](<Screenshot from 2023-10-06 11-27-59.png>)
+
+Tab for Dynatrace (Be in problem screen)
+![Alt text](<Screenshot from 2023-10-06 11-37-45.png>)
+
+Tab for EDA Controller (in the Rule Audit Screen). Shortly after you kill nginx you should see a new triggered event.
+![Alt text](<Screenshot from 2023-10-06 11-30-45.png>)
+
+Tab for AAP Controller (Jobs screen)
+![Alt text](<Screenshot from 2023-10-06 11-38-21.png>)
+
+By now you can go look at the job details and see the extra vars passed in from the Rule book:
+![Alt text](<Screenshot from 2023-10-06 11-39-52.png>)
+
+Well you're armed up to do a demo! Enjoy. Feel free to improve or enhance the repo as you see fit!
+
+
+
