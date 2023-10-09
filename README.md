@@ -4,20 +4,20 @@
 1. Event Driven Ansible Controller
 2. Ansible Automation Controller
 3. Dynatrace
-4. Service Now
-### Usecase:
-a. Nginx web server goes down on server.  
+4. ServiceNow
+### Use case:
+a. Nginx  web server goes down on server.  
 
-b. Process monitor via Dynatrace OneAgent detects failed nginx process creates problem alert in Dynatrace  
+b. Process monitor via Dynatrace OneAgent detects failed Nginx  process creates problem alert in Dynatrace  
 
 c. Failed event is sent to Event Driven Ansible Controller  
 
 d. Event Driven Ansible runs Job template that does the following:  
 
 1. Opens ServiceNow incident ticket
-2. Attempts to restart nginx
+2. Attempts to restart Nginx 
 3. Marks Incident ticket in progress
-4. Closes ticket only if nginx is back up
+4. Closes ticket only if Nginx  is back up
 ![Alt text](<Screenshot from 2023-10-05 20-20-29.png>)
 
 ---
@@ -39,7 +39,7 @@ See screen shot
 > We use the token in our rule book. See below example:
 ![Alt text](<Screenshot from 2023-10-04 20-48-32.png>)
 
-> 3. Access to Service Now   
+> 3. Access to ServiceNow   
 > Create a custom Credential for ServiceNow in AAP Controller:  
 > In this demo I use basic auth from AAP Controller to ServiceNow.
 > 
@@ -69,15 +69,15 @@ env:
   SN_PASSWORD: '{{password}}'
   SN_USERNAME: '{{username}}'
 ```
->Now that you have a Service Now credential type you're ready to use it.   
+>Now that you have a ServiceNow credential type you're ready to use it.   
 > - Create a new credential in controller and chose your newly created ServiceNow credental. 
-> - Provide the URL to your instance, the userid and password to authentiate to Service Now.  
+> - Provide the URL to your instance, the userid and password to authentiate to ServiceNow.  
 ![Alt text](<Screenshot from 2023-10-04 21-21-37.png>)
-> You will need this credential later for the job template you'll use to create, update, and close Service Now incident tickets in your demo.
+> You will need this credential later for the job template you'll use to create, update, and close ServiceNow incident tickets in your demo.
 > 4. You would have needed to already integrated EDA Controller with AAP Controller using and access token. If you have not done that and need help check out this instruqt lab: [Link here](https://play.instruqt.com/redhat/invite/g0wofhztypx3?utm_source=instruqt&utm_medium=share_button&utm_campaign=referral&icp_instruqt_share_button_referral=true)
-> 5. I do this demo in my lab in AWS.You will need to make sure you have a managed node running NGINX on RHEL and you can connect to the inventory with become true with your machine credential defined in AAP Controller.  
+> 5. I do this demo in my lab in AWS.You will need to make sure you have a managed node running Nginx  on RHEL and you can connect to the inventory with become true with your machine credential defined in AAP Controller.  
 >> - Make sure the managed node is defined in your inventory in AAP Controller.
->> - In this demo we are only using the default landing page that comes with NGINX when it's installed. Make sure all firewall rules either on RHEL via firewalld or cloud firewall rules are opened for port 80.
+>> - In this demo we are only using the default landing page that comes with Nginx  when it's installed. Make sure all firewall rules either on RHEL via firewalld or cloud firewall rules are opened for port 80.
 > 6. You will need to create a Decision Environment. See below example build file I used:
 ```
 ---
@@ -114,9 +114,9 @@ As of this writing (10-4-23), you can not vault secret variables that are used i
 In the EDA Controller you can store the variable needed for the Dynatrace plugin when you create the Rulebook Activation a shown below:
 ![Alt text](<Screenshot from 2023-10-04 19-34-20.png>)
 
-### Okay, now that's out of the way...Let's start. At this point you should have a RHEL vm up running NGINX (see prerequisites section)
+### Okay, now that's out of the way...Let's start. At this point you should have a RHEL vm up running Nginx  (see prerequisites section)
 
-1. Log into Dynatrace. We need to Download the Dynatrace OneAgent to install on our managed RHEL VM running NGINX.
+1. Log into Dynatrace. We need to Download the Dynatrace OneAgent to install on our managed RHEL VM running Nginx .
    
 > - under Deploy Dynatrace click start installation
  ![Alt text](<Screenshot from 2023-10-04 22-23-23.png>)
@@ -127,20 +127,20 @@ In the EDA Controller you can store the variable needed for the Dynatrace plugin
  If this is your first time downloading the OneAgent, go ahead and click the create token button and then save it in a secure place. Note if you click Create token again in the future you will be replacing your previous token.
  ![Alt text](<Screenshot from 2023-10-04 22-30-22.png>)
 
- At this point you're ready to follow the instructions above onto your target node running NGINX.  
- Reboot your target node running NGINX.
+ At this point you're ready to follow the instructions above onto your target node running Nginx .  
+ Reboot your target node running Nginx .
  Let's move onto the next step.  
 
- 2. You've rebooted your target node. At this point the Nginx and OneAgent processes should be running. Great! Already the OneAgent is discovering what all is running on the host. Let's take advantage of that and setup a process monitor for Nginx. 
+ 2. You've rebooted your target node. At this point the Nginx  and OneAgent processes should be running. Great! Already the OneAgent is discovering what all is running on the host. Let's take advantage of that and setup a process monitor for Nginx . 
 >>In this demonstration, we are setting up a Process availability monitoring rule. Instructions for how to do that can be  [found here](https://www.dynatrace.com/support/help/platform-modules/infrastructure-monitoring/hosts/monitoring/process-availability) 
-however, I will be providing the steps here for how I set it up to monitor Nginx.
+however, I will be providing the steps here for how I set it up to monitor Nginx .
 >> 1. Log into Dynatrace
 >> 2. Go to settings at the bottom left then Process availability.
 >> 3. Under Process availability click 'Add monitoring rule'
->> 4. Give the monitor rule name a name (I put Nginx Host monitor)
+>> 4. Give the monitor rule name a name (I put Nginx  Host monitor)
 >> 5. Click Add detection rule
 >> 6. Keep 'Select process property' set to Executable
->> 7. For Condition put $contains(nginx)
+>> 7. For Condition put $contains(Nginx )
 >> 8. Save the the setting in the lower left
 
 ![Alt text](<Screenshot from 2023-10-06 10-35-33.png>)
@@ -148,19 +148,19 @@ however, I will be providing the steps here for how I set it up to monitor Nginx
 
 > Oh boy you're cooking now. Let's see if this thing works. Ready to kill something? :smirk:
   
-> STOP :stop_sign: before we go.. it's important to pause and appreciate what you've done so far. You've setup a host-level monitor for nginx running on your target host for your demo. Why do you care? Well by using a host-level monitor you will have the impactedEntities key in the json payload set to the the hostname that will go to EDA to and dynamically run a Job in Controller only on the troubled node that created the problem alert in Dynatrace. See below a preview of what that payload will look like because you'll see in the playbook and rulebook that is used in this repo.
+> STOP :stop_sign: before we go.. it's important to pause and appreciate what you've done so far. You've setup a host-level monitor for Nginx  running on your target host for your demo. Why do you care? Well by using a host-level monitor you will have the impactedEntities key in the json payload set to the the hostname that will go to EDA to and dynamically run a Job in Controller only on the troubled node that created the problem alert in Dynatrace. See below a preview of what that payload will look like because you'll see in the playbook and rulebook that is used in this repo.
 ![Alt text](<Screenshot from 2023-10-06 10-48-14.png>)
 
-3. Hop over to your RHEL managed host that's running Nginx. Let's get that nginx process so we know what we're killing! :sunglasses:
+3. Hop over to your RHEL managed host that's running Nginx . Let's get that Nginx  process so we know what we're killing! :sunglasses:
 ```
-$ systemctl status nginx
-● nginx.service - The nginx HTTP and reverse proxy server
-     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: disabled)
+$ systemctl status Nginx 
+● Nginx .service - The Nginx  HTTP and reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/Nginx .service; enabled; preset: disabled)
      Active: active (running) since Wed 2023-10-04 20:41:33 UTC; 6h ago
-    Process: 99269 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
-    Process: 99270 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
-    Process: 99275 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
-   Main PID: 99286 (nginx)
+    Process: 99269 ExecStartPre=/usr/bin/rm -f /run/Nginx .pid (code=exited, status=0/SUCCESS)
+    Process: 99270 ExecStartPre=/usr/sbin/Nginx  -t (code=exited, status=0/SUCCESS)
+    Process: 99275 ExecStart=/usr/sbin/Nginx  (code=exited, status=0/SUCCESS)
+   Main PID: 99286 (Nginx )
 ```
 Looks like we got the pid in our sites. Let's kill it!:scream:
 ```
@@ -174,9 +174,9 @@ $ sudo kill -9 99286 <- such a brutal death
 5. Well at this point we have:
 > - installed the OneAgent
 > - Setup a host level process monitor in Dynatrace
-> - Killed Nginx and demonstrated we get a problem alert in Dynatrace. 
+> - Killed Nginx  and demonstrated we get a problem alert in Dynatrace. 
 > - Now let's pivot to what is in this repo. 
-> - Go ahead and restart nginx on your target node to let the problem alert clear in Dynatrace. We have some setup to do in AAP!
+> - Go ahead and restart Nginx  on your target node to let the problem alert clear in Dynatrace. We have some setup to do in AAP!
 
 6. Log into your EDA Controller. 
    > That Decision Environment you created earlier, well that needs to be pulled into EDA now.
@@ -211,11 +211,11 @@ dynatrace_delay: 30
 
 > At this point we are finished in EDA Controller.Let's pivot to AAP Controller.
 12. Log into your AAP Controller. You will need to have created the following resources:
-  > - Machine Credential to access your RHEL host running Nginx
-  > - Service Now Credential 
+  > - Machine Credential to access your RHEL host running Nginx 
+  > - ServiceNow Credential 
   > - Project that has this repo in it
   > - an Execution environment with the Service Collection in it.
-  > - Inventory that can be set to the job template that includes the node that we plan to kill nginx on.
+  > - Inventory that can be set to the job template that includes the node that we plan to kill Nginx  on.
 13. Create the Job Template See below:
   
   ![Alt text](<Screenshot from 2023-10-06 10-59-04.png>)
@@ -225,18 +225,20 @@ dynatrace_delay: 30
 
 So I think we have all the pieces together. At this point I would have 4 tabs up in my brower:  
 1. Tab for ServiceNow Incident screen
-2. Tab for Dynatrace so you can see the problem alert when you kill the nginx pid on the host
+2. Tab for Dynatrace so you can see the problem alert when you kill the Nginx  pid on the host
 3. Tab for AAP Controller (in the jobs screen)
-4. Tab for EDA Controller (in the Rule Audit screen to see the event fire )
+4. Tab for EDA Controller (in the Rule Audit screen to see the event fire )  
+   
+   At this point, you can kill the nginix process again on your managed host!
 
 See below examples:
-Tab for Service Now:
+Tab for ServiceNow:
 ![Alt text](<Screenshot from 2023-10-06 11-27-59.png>)
 
 Tab for Dynatrace (Be in problem screen)
 ![Alt text](<Screenshot from 2023-10-06 11-37-45.png>)
 
-Tab for EDA Controller (in the Rule Audit Screen). Shortly after you kill nginx you should see a new triggered event.
+Tab for EDA Controller (in the Rule Audit Screen). Shortly after you kill Nginx  you should see a new triggered event.
 ![Alt text](<Screenshot from 2023-10-06 11-30-45.png>)
 
 Tab for AAP Controller (Jobs screen)
