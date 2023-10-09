@@ -108,8 +108,8 @@ options:
 # Setup Resources in AAP Controller and EDA Controller:
 
 ### One more thing before we start
-As of this writing (10-4-23), you can not vault secret variables that are used in rule books. See link for using variables in rule books. 
-[Link here](https://ansible.readthedocs.io/projects/rulebook/en/stable/variables.html#accessing-variables-in-your-rulebook)
+As of this writing (10-4-23), you can not vault secret variables that are used in rule books. See [link](https://ansible.readthedocs.io/projects/rulebook/en/stable/variables.html#accessing-variables-in-your-rulebook) for using variables in rule books. 
+
 
 In the EDA Controller you can store the variable needed for the Dynatrace plugin when you create the Rulebook Activation a shown below:
 ![Alt text](<Screenshot from 2023-10-04 19-34-20.png>)
