@@ -55,3 +55,4 @@
           ansible.builtin.debug:
             msg: "Hey your nginix web server is back up. Good for you"
       when: chksrvc.state == "started"
+      
