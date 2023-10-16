@@ -105,6 +105,7 @@ options:
   package_manager_path: /usr/bin/microdnf
 ```
 > I used ansible-builder v3 to build my DE. I pushed my DE to my Private Automation Hub. You can use what ever container repository you want as long as you can pull it into your EDA Controller. 
+
 ![Alt text](<Screenshot from 2023-10-04 21-42-52.png>)
 ---
 > 7. You will need to create an Execution Environment with the servicenow.itsm collection in it and make sure it's available for use in AAP Controller. 
@@ -119,9 +120,10 @@ In the EDA Controller you can store the variable needed for the Dynatrace plugin
 
 ### Okay, now that's out of the way...Let's start. At this point you should have a RHEL vm up running Nginx  (see prerequisites section)
 
-1. Log into Dynatrace. We need to Download the Dynatrace OneAgent to install on our managed RHEL VM running Nginx .
+1. Log into Dynatrace. We need to Download the Dynatrace OneAgent to install on our managed RHEL VM running Nginx.
    
 > - under Deploy Dynatrace click start installation
+
  ![Alt text](<Screenshot from 2023-10-04 22-23-23.png>)
 
  Select Linux:
@@ -152,6 +154,7 @@ however, I will be providing the steps here for how I set it up to monitor Nginx
 > Oh boy you're cooking now. Let's see if this thing works. Ready to kill something? :smirk:
   
 > STOP :stop_sign: before we go.. it's important to pause and appreciate what you've done so far. You've setup a host-level monitor for Nginx  running on your target host for your demo. Why do you care? Well by using a host-level monitor you will have the impactedEntities key in the json payload set to the the hostname that will go to EDA to and dynamically run a Job in Controller only on the troubled node that created the problem alert in Dynatrace. See below a preview of what that payload will look like because you'll see in the playbook and rulebook that is used in this repo.
+
 ![Alt text](<Screenshot from 2023-10-06 10-48-14.png>)
 
 3. Hop over to your RHEL managed host that's running Nginx . Let's get that Nginx  process so we know what we're killing! :sunglasses:
@@ -171,6 +174,7 @@ $ sudo kill -9 99286 <- such a brutal death
 ```
 4. Let's see if our process monitor that we set up in Dynatrace even cares about what's happened. This could take a few minutes.
 >> Log into Dynatrace. Go to problems and then filter on open status:
+
 ![Alt text](<Screenshot from 2023-10-04 23-23-22.png>)
 >> Oh boy. Houston we've got a problem :skull:
 
@@ -183,15 +187,18 @@ $ sudo kill -9 99286 <- such a brutal death
 
 6. Log into your EDA Controller. 
    > That Decision Environment you created earlier, well that needs to be pulled into EDA now.
+
    ![Alt text](<Screenshot from 2023-10-04 23-43-11.png>)
 
     > Next fill in the information you need to pull in your DE (You may need to create a credential to use to authenticate to your container repository to complete the pull.) 
+
    ![Alt text](<Screenshot from 2023-10-04 23-49-30.png>)
 
    > You have a DE now. We're getting closer to saving this little feller. :ghost:
 
 7. Just like how AAP Controller has projects to pull in your playbooks, EDA has projects to pull in your rulebooks. So let's do that. 
    > Go to projects and then create project
+
    ![Alt text](<Screenshot from 2023-10-04 23-56-51.png>)
 8. Fill in the information. 
    ![Alt text](<Screenshot from 2023-10-04 23-57-54.png>)
@@ -203,6 +210,7 @@ $ sudo kill -9 99286 <- such a brutal death
 ![Alt text](<Screenshot from 2023-10-05 00-04-12.png>)
 ![Alt text](<Screenshot from 2023-10-05 00-06-22.png>)
 > Select the dynatrace.yml from this repository
+
 ![Alt text](<Screenshot from 2023-10-05 00-10-28.png>)
 > Note you can put in the following variables for connecting to Dynatrace:
 ```
