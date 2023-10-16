@@ -73,7 +73,8 @@ env:
 ```
 >Now that you have a ServiceNow credential type you're ready to use it.   
 > - Create a new credential in controller and chose your newly created ServiceNow credental. 
-> - Provide the URL to your instance, the userid and password to authenticate to ServiceNow.  
+> - Provide the URL to your instance, the userid and password to authenticate to ServiceNow. 
+>  
 ![Alt text](<Screenshot from 2023-10-04 21-21-37.png>)
 > You will need this credential later for the job template you'll use to create, update, and close ServiceNow incident tickets in your demo.
 > 4. You would have needed to already integrated EDA Controller with AAP Controller using and access token. If you have not done that and need help check out this [instruqt lab](https://play.instruqt.com/redhat/invite/g0wofhztypx3?utm_source=instruqt&utm_medium=share_button&utm_campaign=referral&icp_instruqt_share_button_referral=true)
