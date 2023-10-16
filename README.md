@@ -34,9 +34,11 @@ d. Event Driven Ansible runs Job template that does the following:
 > - Read Security Problems
 > - Write Security Problems  
 See screen shot  
+
 ![Alt text](<Screenshot from 2023-10-04 19-30-07.png>)
 
 > We use the token in our rule book. See below example:
+
 ![Alt text](<Screenshot from 2023-10-04 20-48-32.png>)
 
 > 3. Access to ServiceNow   
