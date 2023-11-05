@@ -9,7 +9,7 @@
 
   rules:
     - name: Look for open Process monitor problem
-      condition: event.title == "Process unavailable"
+      condition: event.title == "No process found for rule Nginx Host monitor"
       action:
         run_job_template:
           name: Fix Nginx and update all
