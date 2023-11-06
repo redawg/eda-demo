@@ -8,11 +8,6 @@
     sn_impact: medium
     sn_urgency: medium
   tasks:
-    - name: Data Sent from Dynatace
-      ansible.builtin.debug:
-         var: event
-
-  
     - name: Try to restart nginx
       ansible.builtin.service:
         name: nginx
