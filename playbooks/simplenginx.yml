@@ -1,0 +1,21 @@
+---
+- name: Restore nginx 
+  hosts: "{{ reporting_host }}"
+  gather_facts: false
+  become: true
+  vars:
+    incident_description: Nginx Web Server is down
+    sn_impact: medium
+    sn_urgency: medium
+  tasks:
+    - name: Try to restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+      register: chksrvc
+
+    - name: Print chksrvc
+      ansible.builtin.debug:
+           msg: "Hey your nginix web server is back up. Good for you"
+      when: chksrvc.state == "started"
+       
