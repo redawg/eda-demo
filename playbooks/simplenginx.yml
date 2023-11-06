@@ -10,7 +10,7 @@
   tasks:
     - name: Data Sent from Dynatace
       ansible.builtin.debug:
-         var:
+         var: event
 
   
     - name: Try to restart nginx
