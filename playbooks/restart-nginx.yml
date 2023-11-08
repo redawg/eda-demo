@@ -32,7 +32,7 @@
 
     - name: Print out Service states 
       ansible.builtin.debug:
-        var: ansible_facts[services][nginx.service]
+        var: ansible_facts.services[nginx.service]
     - name: Update incident in ServiceNow
       servicenow.itsm.incident:
         state: in_progress
