@@ -39,7 +39,7 @@
         state: in_progress
         number: "{{ ticket_number }}"
         other:
-          comments: "Ansible automation is working on {{ problemID }}. on host {{ reporting_host }}. Service was in {{ ansible_facts.services['nginx.service']['state'] }} state and  "
+          comments: "Ansible automation is working on {{ problemID }}. on host {{ reporting_host }}.\n Service was in {{ ansible_facts.services['nginx.service']['state'] }} state and {{ ansible_facts.services['nginx.service']['status'] }} status"
       delegate_to: localhost
 
         
