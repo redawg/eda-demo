@@ -33,12 +33,13 @@
     - name: Print out Service states 
       ansible.builtin.debug:
         var: ansible_facts.services[nginx.service]
+
     - name: Update incident in ServiceNow
       servicenow.itsm.incident:
         state: in_progress
         number: "{{ ticket_number }}"
         other:
-          comments: "Ansible automation is working on {{ problemID }}. on host {{ reporting_host }}.\n  Service was in {{ ansible_facts[services][nginx.service][state] }} state and  "
+          comments: "Ansible automation is working on {{ problemID }}. on host {{ reporting_host }}.\n  Service was in {{ ansible_facts.services[nginx.service][state] }} state and  "
       delegate_to: localhost
 
         
