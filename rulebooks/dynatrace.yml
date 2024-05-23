@@ -13,7 +13,7 @@
       action:
         run_job_template:
           name: Fix Nginx and update all
-          organization: "Default"
+          organization: Default
           job_args:
             extra_vars:
               problemID: "{{ event.displayId }}"
