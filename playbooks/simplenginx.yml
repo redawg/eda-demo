@@ -1,5 +1,5 @@
 ---
-- name: Restore nginx 
+- name: Restore nginx
   hosts: "{{ reporting_host }}"
   gather_facts: false
   become: true
@@ -16,6 +16,5 @@
 
     - name: Print chksrvc
       ansible.builtin.debug:
-           msg: "Hey your nginix web server is back up. Good for you"
+        msg: Hey your nginix web server is back up. Good for you
       when: chksrvc.state == "started"
-       
