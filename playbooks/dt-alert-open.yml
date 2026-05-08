@@ -1,0 +1,162 @@
+---
+# Triggered by EDA when Dynatrace fires an OPEN problem event.
+# Flow: Create SNOW ticket → Slack alert → attempt remediation → update SNOW → Slack resolution
+- name: "EDA: Dynatrace Alert Open - SNOW + Slack + Remediate"
+  hosts: "{{ reporting_host }}"
+  gather_facts: false
+  become: true
+  vars:
+    sn_impact: medium
+    sn_urgency: medium
+    slack_username: "Ansible EDA Bot"
+    slack_icon: ":robot_face:"
+
+  tasks:
+
+    # ── 1. Create the ServiceNow incident ───────────────────────────────────
+    - name: Create ServiceNow incident
+      servicenow.itsm.incident:
+        state: new
+        short_description: "[Dynatrace] {{ event_title }} on {{ reporting_host }}"
+        description: |
+          Dynatrace detected a problem and Event-Driven Ansible has begun automated remediation.
+
+          Problem ID  : {{ problemID }}
+          Severity    : {{ event_severity }}
+          Host        : {{ reporting_host }}
+          Alert       : {{ event_title }}
+        caller: admin
+        urgency: "{{ sn_urgency }}"
+        impact: "{{ sn_impact }}"
+        other:
+          u_problem_id: "{{ problemID }}"
+      register: new_incident
+      delegate_to: localhost
+
+    - name: Store ticket number for later tasks
+      ansible.builtin.set_fact:
+        ticket_number: "{{ new_incident.record.number }}"
+
+    # ── 2. Slack – new alert notification ───────────────────────────────────
+    - name: "Slack: Alert received, ticket created"
+      community.general.slack:
+        token: "{{ slack_token }}"
+        channel: "{{ slack_channel }}"
+        username: "{{ slack_username }}"
+        icon_emoji: "{{ slack_icon }}"
+        attachments:
+          - color: danger
+            title: ":rotating_light:  Dynatrace Alert — {{ event_severity }}"
+            title_link: "https://{{ dynatrace_host }}/ui/problems"
+            text: |
+              *{{ event_title }}*
+              Host: `{{ reporting_host }}`
+              Problem ID: `{{ problemID }}`
+              ServiceNow Ticket: *{{ ticket_number }}*
+            footer: "Event-Driven Ansible"
+            footer_icon: "https://www.ansible.com/favicon.ico"
+      delegate_to: localhost
+
+    # ── 3. Gather facts and update SNOW – automation starting ───────────────
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Update SNOW – automation in progress
+      servicenow.itsm.incident:
+        state: in_progress
+        number: "{{ ticket_number }}"
+        other:
+          comments: |
+            Ansible EDA automation has taken over problem {{ problemID }} on {{ reporting_host }}.
+
+            Service status at detection time:
+            nginx.service  state={{ ansible_facts.services['nginx.service']['state'] | default('unknown') }}
+                           status={{ ansible_facts.services['nginx.service']['status'] | default('unknown') }}
+      delegate_to: localhost
+
+    # ── 4. Slack – automation working ───────────────────────────────────────
+    - name: "Slack: Automation in progress"
+      community.general.slack:
+        token: "{{ slack_token }}"
+        channel: "{{ slack_channel }}"
+        username: "{{ slack_username }}"
+        icon_emoji: "{{ slack_icon }}"
+        attachments:
+          - color: warning
+            title: ":gear:  Ansible EDA — Automation Running"
+            text: |
+              Automated remediation started for *{{ ticket_number }}*
+              Attempting to restart affected service on `{{ reporting_host }}`
+            footer: "Event-Driven Ansible"
+      delegate_to: localhost
+
+    # ── 5. Attempt remediation ───────────────────────────────────────────────
+    - name: Attempt service restart
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+      register: remediation_result
+      ignore_errors: true
+
+    # ── 6a. SUCCESS path ─────────────────────────────────────────────────────
+    - name: Close SNOW ticket – remediation successful
+      servicenow.itsm.incident:
+        state: closed
+        number: "{{ ticket_number }}"
+        close_code: "Solved (Permanently)"
+        close_notes: |
+          Ansible EDA successfully remediated problem {{ problemID }} on {{ reporting_host }}.
+          Service was restarted and confirmed running.
+          No further action required.
+      delegate_to: localhost
+      when: remediation_result is succeeded
+
+    - name: "Slack: Issue resolved"
+      community.general.slack:
+        token: "{{ slack_token }}"
+        channel: "{{ slack_channel }}"
+        username: "{{ slack_username }}"
+        icon_emoji: "{{ slack_icon }}"
+        attachments:
+          - color: good
+            title: ":white_check_mark:  Resolved — {{ ticket_number }}"
+            text: |
+              Ansible EDA successfully remediated the Dynatrace alert.
+              *{{ event_title }}*
+              Host: `{{ reporting_host }}` | Problem: `{{ problemID }}`
+              ServiceNow ticket *{{ ticket_number }}* has been closed.
+            footer: "Event-Driven Ansible"
+      delegate_to: localhost
+      when: remediation_result is succeeded
+
+    # ── 6b. FAILURE path ─────────────────────────────────────────────────────
+    - name: Update SNOW ticket – remediation failed, needs human
+      servicenow.itsm.incident:
+        state: open
+        number: "{{ ticket_number }}"
+        other:
+          comments: |
+            Automated remediation attempted but FAILED for problem {{ problemID }} on {{ reporting_host }}.
+            Manual intervention required. Service could not be restarted by Ansible EDA.
+          urgency: high
+          impact: high
+      delegate_to: localhost
+      when: remediation_result is failed
+
+    - name: "Slack: Automation failed – needs human"
+      community.general.slack:
+        token: "{{ slack_token }}"
+        channel: "{{ slack_channel }}"
+        username: "{{ slack_username }}"
+        icon_emoji: "{{ slack_icon }}"
+        attachments:
+          - color: danger
+            title: ":sos:  Escalation Required — {{ ticket_number }}"
+            text: |
+              :warning: Automated remediation *failed* for `{{ reporting_host }}`
+              *{{ event_title }}*
+              Problem: `{{ problemID }}`
+              ServiceNow ticket *{{ ticket_number }}* has been escalated — *manual intervention required.*
+            footer: "Event-Driven Ansible"
+      delegate_to: localhost
+      when: remediation_result is failed

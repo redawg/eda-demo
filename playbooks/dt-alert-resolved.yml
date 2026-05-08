@@ -1,0 +1,73 @@
+---
+# Triggered by EDA when Dynatrace self-resolves a problem (status: RESOLVED).
+# Looks up the open SNOW incident by Problem ID, closes it, and posts to Slack.
+- name: "EDA: Dynatrace Alert Resolved - Close SNOW + Notify Slack"
+  hosts: localhost
+  gather_facts: false
+  vars:
+    slack_username: "Ansible EDA Bot"
+    slack_icon: ":robot_face:"
+
+  tasks:
+
+    # ── 1. Find the open SNOW incident for this Dynatrace problem ───────────
+    - name: Look up open ServiceNow incident for this Dynatrace problem
+      servicenow.itsm.incident_info:
+        query:
+          - u_problem_id: = {{ problemID }}
+            state: "!= closed"
+      register: open_incidents
+
+    - name: No open ticket found – post informational Slack note and exit
+      community.general.slack:
+        token: "{{ slack_token }}"
+        channel: "{{ slack_channel }}"
+        username: "{{ slack_username }}"
+        icon_emoji: "{{ slack_icon }}"
+        attachments:
+          - color: good
+            title: ":white_check_mark:  Dynatrace Auto-Resolved"
+            text: |
+              Problem `{{ problemID }}` on `{{ reporting_host }}` was resolved by Dynatrace.
+              *{{ event_title }}*
+              No open ServiceNow ticket found — no further action required.
+            footer: "Event-Driven Ansible"
+      delegate_to: localhost
+      when: open_incidents.records | length == 0
+
+    - name: Exit if no open ticket exists
+      ansible.builtin.meta: end_play
+      when: open_incidents.records | length == 0
+
+    - name: Store ticket number
+      ansible.builtin.set_fact:
+        ticket_number: "{{ open_incidents.records[0].number }}"
+
+    # ── 2. Close the SNOW incident ───────────────────────────────────────────
+    - name: Close ServiceNow incident – Dynatrace self-resolved
+      servicenow.itsm.incident:
+        state: closed
+        number: "{{ ticket_number }}"
+        close_code: "Solved (Permanently)"
+        close_notes: |
+          Dynatrace confirmed problem {{ problemID }} on {{ reporting_host }} has self-resolved.
+          Alert: {{ event_title }}
+          No further automated action was required. Closing ticket per Dynatrace RESOLVED event.
+      delegate_to: localhost
+
+    # ── 3. Slack – resolved notification ────────────────────────────────────
+    - name: "Slack: Dynatrace resolved, SNOW ticket closed"
+      community.general.slack:
+        token: "{{ slack_token }}"
+        channel: "{{ slack_channel }}"
+        username: "{{ slack_username }}"
+        icon_emoji: "{{ slack_icon }}"
+        attachments:
+          - color: good
+            title: ":large_green_circle:  Dynatrace Auto-Resolved — {{ ticket_number }}"
+            text: |
+              Dynatrace has self-resolved problem `{{ problemID }}` on `{{ reporting_host }}`.
+              *{{ event_title }}*
+              ServiceNow ticket *{{ ticket_number }}* has been closed automatically.
+            footer: "Event-Driven Ansible"
+      delegate_to: localhost

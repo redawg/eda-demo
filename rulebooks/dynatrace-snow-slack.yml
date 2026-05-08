@@ -1,0 +1,35 @@
+---
+- name: "EDA Demo: Dynatrace Alerts → ServiceNow + Slack"
+  hosts: all
+  sources:
+    - dynatrace.event_driven_ansible.dt_esa_api:
+        dt_api_host: "{{ dynatrace_host }}"
+        dt_api_token: "{{ dynatrace_token }}"
+        delay: "{{ dynatrace_delay | default(60) }}"
+
+  rules:
+    - name: New problem opened in Dynatrace
+      condition: event.status == "OPEN"
+      action:
+        run_job_template:
+          name: "EDA - DT Alert Open"
+          organization: "Default"
+          job_args:
+            extra_vars:
+              problemID: "{{ event.displayId }}"
+              event_title: "{{ event.title }}"
+              event_severity: "{{ event.severityLevel }}"
+              reporting_host: "{{ event.impactedEntities[0].name }}"
+
+    - name: Problem resolved in Dynatrace
+      condition: event.status == "RESOLVED"
+      action:
+        run_job_template:
+          name: "EDA - DT Alert Resolved"
+          organization: "Default"
+          job_args:
+            extra_vars:
+              problemID: "{{ event.displayId }}"
+              event_title: "{{ event.title }}"
+              event_severity: "{{ event.severityLevel }}"
+              reporting_host: "{{ event.impactedEntities[0].name }}"
